@@ -1,26 +1,20 @@
-const priorityWeights = {
-    Placement: 3,
-    Result: 2,
-    Event: 1,
-};
-
 export function getTopNotifications(notifications) {
-    const sortedNotifications = notifications.sort(
-        (a, b) => {
-            const priorityDifference =
-                priorityWeights[b.Type] -
-                priorityWeights[a.Type];
+    const priorityWeights = {
+        Placement: 3,
+        Result: 2,
+        Event: 1,
+    };
 
-            if (priorityDifference !== 0) {
-                return priorityDifference;
-            }
+    const sortedNotifications = notifications.sort((a, b) => {
+        const priorityDifference =
+            priorityWeights[b.Type] - priorityWeights[a.Type];
 
-            return (
-                new Date(b.Timestamp) -
-                new Date(a.Timestamp)
-            );
+        if (priorityDifference !== 0) {
+            return priorityDifference;
         }
-    );
+
+        return new Date(b.Timestamp) - new Date(a.Timestamp);
+    });
 
     return sortedNotifications.slice(0, 10);
 }

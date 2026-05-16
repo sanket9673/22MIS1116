@@ -4,46 +4,39 @@ import { getTopNotifications } from "./utils/priorityManager";
 
 function App() {
   const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    async function loadNotifications() {
+      const data = await fetchNotifications();
+
+      if (!data || data.length === 0) {
+        return;
+      }
+
+      const topNotifications = getTopNotifications(data);
+
+      setNotifications(topNotifications);
+    }
+
     loadNotifications();
   }, []);
 
-  async function loadNotifications() {
-    try {
-      const data = await fetchNotifications();
-
-      const topNotifications =
-        getTopNotifications(
-          data.notifications || []
-        );
-
-      setNotifications(topNotifications);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div style={{ padding: "20px" }}>
-        Loading notifications...
-      </div>
-    );
-  }
-
   return (
-    <div style={{ padding: "20px" }}>
+    <div
+      style={{
+        padding: "20px",
+        fontFamily: "Arial",
+      }}
+    >
       <h1>Top Priority Notifications</h1>
+
+      <p>Total Notifications: {notifications.length}</p>
 
       {notifications.map((notification) => (
         <div
           key={notification.ID}
           style={{
-            border: "1px solid gray",
+            border: "1px solid #ccc",
             padding: "10px",
             marginBottom: "10px",
             borderRadius: "8px",
@@ -53,9 +46,7 @@ function App() {
 
           <p>{notification.Message}</p>
 
-          <small>
-            {notification.Timestamp}
-          </small>
+          <small>{notification.Timestamp}</small>
         </div>
       ))}
     </div>
