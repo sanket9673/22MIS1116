@@ -13,12 +13,10 @@ export async function fetchNotifications() {
             },
         });
 
-        // Handle case where response.data is the array itself
         if (Array.isArray(response.data)) {
             return response.data;
         }
 
-        // Handle case where response.data.notifications is the array
         if (response.data && Array.isArray(response.data.notifications)) {
             return response.data.notifications;
         }
