@@ -1,39 +1,37 @@
 import { useEffect, useState } from "react";
-
 import { fetchNotifications } from "./api/notificationApi";
-
 import { getTopNotifications } from "./utils/priorityManager";
 
-import { Log } from "./utils/logger";
-
 function App() {
-  const [notifications, setNotifications] =
-    useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadNotifications();
   }, []);
 
   async function loadNotifications() {
-    await Log(
-      "frontend",
-      "info",
-      "page",
-      "Loading notifications"
-    );
+    try {
+      const data = await fetchNotifications();
 
-    const data = await fetchNotifications();
+      const topNotifications =
+        getTopNotifications(
+          data.notifications || []
+        );
 
-    const topNotifications =
-      await getTopNotifications(data);
+      setNotifications(topNotifications);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-    setNotifications(topNotifications);
-
-    await Log(
-      "frontend",
-      "info",
-      "state",
-      "Top notifications state updated"
+  if (loading) {
+    return (
+      <div style={{ padding: "20px" }}>
+        Loading notifications...
+      </div>
     );
   }
 
@@ -41,20 +39,23 @@ function App() {
     <div style={{ padding: "20px" }}>
       <h1>Top Priority Notifications</h1>
 
-      {notifications.map((item) => (
+      {notifications.map((notification) => (
         <div
-          key={item.ID}
+          key={notification.ID}
           style={{
             border: "1px solid gray",
-            marginBottom: "10px",
             padding: "10px",
+            marginBottom: "10px",
+            borderRadius: "8px",
           }}
         >
-          <h3>{item.Type}</h3>
+          <h3>{notification.Type}</h3>
 
-          <p>{item.Message}</p>
+          <p>{notification.Message}</p>
 
-          <small>{item.Timestamp}</small>
+          <small>
+            {notification.Timestamp}
+          </small>
         </div>
       ))}
     </div>

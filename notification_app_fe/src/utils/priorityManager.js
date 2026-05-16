@@ -1,42 +1,26 @@
-import { Log } from "./logger";
-
-const weights = {
+const priorityWeights = {
     Placement: 3,
     Result: 2,
     Event: 1,
 };
 
-export async function getTopNotifications(
-    notifications,
-    limit = 10
-) {
-    await Log(
-        "frontend",
-        "info",
-        "utils",
-        "Priority calculation started"
-    );
+export function getTopNotifications(notifications) {
+    const sortedNotifications = notifications.sort(
+        (a, b) => {
+            const priorityDifference =
+                priorityWeights[b.Type] -
+                priorityWeights[a.Type];
 
-    const sorted = notifications.sort((a, b) => {
-        const weightDiff =
-            weights[b.Type] - weights[a.Type];
+            if (priorityDifference !== 0) {
+                return priorityDifference;
+            }
 
-        if (weightDiff !== 0) {
-            return weightDiff;
+            return (
+                new Date(b.Timestamp) -
+                new Date(a.Timestamp)
+            );
         }
-
-        return (
-            new Date(b.Timestamp) -
-            new Date(a.Timestamp)
-        );
-    });
-
-    await Log(
-        "frontend",
-        "info",
-        "utils",
-        "Priority calculation completed"
     );
 
-    return sorted.slice(0, limit);
+    return sortedNotifications.slice(0, 10);
 }
